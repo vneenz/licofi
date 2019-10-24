@@ -5,11 +5,15 @@ interface Result {
 }
 
 interface Options {
-    lineBreak: string;
-    indexOrigin: number;
+    lineBreak?: string;
+    indexOrigin?: number;
 }
 
-const DEFAULT_OPTIONS: Options = {
+type Required<T> = {
+    [key in keyof T]-?: NonNullable<T[key]>;
+};
+
+const DEFAULT_OPTIONS: Required<Options> = {
     lineBreak: "\n",
     indexOrigin: 1
 };
@@ -38,7 +42,7 @@ function findClosestIndex(needle: number, haystack: number[]) {
 class LineColumnFinder {
 
     private source: string;
-    private options: Options;
+    private options: Required<Options>;
     private lineCache: number[];
 
     constructor(source: string, options: Options) {
@@ -52,12 +56,14 @@ class LineColumnFinder {
     private initCache() {
         let index = 0;
 
+        const offset = this.options.lineBreak.length;
+
         for(let i = 0;; i++) {
             this.lineCache.push(index);
 
             index = this.source.indexOf(this.options.lineBreak, index);
             if(index === -1) break;
-            index++;
+            index += offset;
         }
     }
 
