@@ -1,0 +1,17 @@
+{
+  "name": "licofi",
+  "version": "0.1.0",
+  "description": "Convert index in a string to line/column",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Marko Räihä"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.6.3"
+  }
+}

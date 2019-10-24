@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "target": "es2015",
+        "baseUrl": ".",
+        "noEmitOnError": true,
+        "module": "commonjs",
+        "sourceMap": false,
+        "noImplicitAny": true,
+        "outDir": "dist",
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
