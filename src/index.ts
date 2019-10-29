@@ -1,5 +1,5 @@
 
-interface Result {
+interface LineColumn {
     line: number;
     column: number;
 }
@@ -45,7 +45,7 @@ class LineColumnFinder {
     private options: Required<Options>;
     private lineCache: number[];
 
-    constructor(source: string, options: Options) {
+    constructor(source: string, options?: Options) {
         this.source = source;
         this.lineCache = [];
         this.options = Object.assign({}, DEFAULT_OPTIONS, options);
@@ -67,12 +67,37 @@ class LineColumnFinder {
         }
     }
 
-    find(searchIndex: number): Result {
-        if(searchIndex > this.source.length || searchIndex < 0)
+    fromLineColumn(from: LineColumn) {
+        const line = from.line - this.options.indexOrigin;
+        const column = from.column - this.options.indexOrigin;
+
+        if(line < 0) throw Error("Invalid line number");
+        if(column < 0) throw Error("Invalid column");
+
+        if(line >= this.lineCache.length) {
+            throw Error(`Specified line number ${from.line} exceeds number of lines`);
+        }
+
+        const index = this.lineCache[line];
+
+        const nextLineStart = line === this.lineCache.length - 1 ?
+            this.source.length : this.lineCache[line + 1];
+
+        const lineLength = nextLineStart - index;
+
+        if(column >= lineLength) {
+            throw Error(`Column ${from.column} does not exist on line ${from.line}`);
+        }
+
+        return index + column;
+    }
+
+    fromIndex(index: number): LineColumn {
+        if(index > this.source.length || index < 0)
             throw Error("Invalid index");
 
-        const line = findClosestIndex(searchIndex, this.lineCache);
-        const column = searchIndex - this.lineCache[line];
+        const line = findClosestIndex(index, this.lineCache);
+        const column = index - this.lineCache[line];
 
         return {
             line: line + this.options.indexOrigin,
