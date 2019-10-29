@@ -6,7 +6,7 @@ interface LineColumn {
 
 interface Options {
     lineBreak?: string;
-    indexOrigin?: number;
+    origin?: number;
 }
 
 type Required<T> = {
@@ -15,7 +15,7 @@ type Required<T> = {
 
 const DEFAULT_OPTIONS: Required<Options> = {
     lineBreak: "\n",
-    indexOrigin: 1
+    origin: 1
 };
 
 function findClosestIndex(needle: number, haystack: number[]) {
@@ -68,8 +68,8 @@ class LineColumnFinder {
     }
 
     fromLineColumn(from: LineColumn) {
-        const line = from.line - this.options.indexOrigin;
-        const column = from.column - this.options.indexOrigin;
+        const line = from.line - this.options.origin;
+        const column = from.column - this.options.origin;
 
         if(line < 0) throw Error("Invalid line number");
         if(column < 0) throw Error("Invalid column");
@@ -100,8 +100,8 @@ class LineColumnFinder {
         const column = index - this.lineCache[line];
 
         return {
-            line: line + this.options.indexOrigin,
-            column: column + this.options.indexOrigin
+            line: line + this.options.origin,
+            column: column + this.options.origin
         };
     }
 
