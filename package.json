@@ -1,12 +1,22 @@
 {
   "name": "licofi",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Convert index in a string to line/column",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "search",
+    "convert",
+    "position",
+    "column",
+    "line",
+    "index",
+    "string",
+    "text"
+  ],
   "author": {
     "name": "Marko Räihä"
   },
