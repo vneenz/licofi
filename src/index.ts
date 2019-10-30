@@ -93,8 +93,11 @@ class LineColumnFinder {
     }
 
     fromIndex(index: number): LineColumn {
-        if(index > this.source.length || index < 0)
+        if(typeof index !== "number" || isNaN(index))
             throw Error("Invalid index");
+
+        if(index >= this.source.length || index < 0)
+            throw Error("Index is out of bounds");
 
         const line = findClosestIndex(index, this.lineCache);
         const column = index - this.lineCache[line];

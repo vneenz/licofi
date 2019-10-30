@@ -33,18 +33,36 @@ it("works with >1k lines", () => {
     const str = lines.join("\n").repeat(300);
 
     const index = str.lastIndexOf("nec");
-    const finder = new LineColumnFinder(str, {lineBreak: "\n"});
-    const result = finder.fromIndex(index);
+    let finder = new LineColumnFinder(str, {lineBreak: "\n"});
+    let result = finder.fromIndex(index);
 
     expect(result).toEqual({line: 1499, column: 22});
+
+    finder = new LineColumnFinder(str, {origin: 0});
+    result = finder.fromIndex(index);
+
+    expect(result).toEqual({line: 1498, column: 21});
+});
+
+it("throws exception when invalid index is specified", () => {
+    const str = "hello\nworld";
+    const finder = new LineColumnFinder(str);
+
+    expect(() => finder.fromIndex(-1)).toThrow();
+    expect(() => finder.fromIndex(11)).toThrow();
+    expect(() => finder.fromIndex(200)).toThrow();
+    expect(() => finder.fromIndex(NaN)).toThrow();
+
+    // @ts-ignore
+    expect(() => finder.fromIndex(null)).toThrow();
 });
 
 it("can convert from line/column to index", () => {
-    const str = "hello\nworld\n!";
-    const str2 = "hello\r\nworld\r\n!";
+    const unixStr = "hello\nworld\n!";
+    const winStr = "hello\r\nworld\r\n!";
 
-    const unix = new LineColumnFinder(str);
-    const windows = new LineColumnFinder(str2);
+    let unix = new LineColumnFinder(unixStr);
+    let windows = new LineColumnFinder(winStr, {lineBreak: "\r\n"});
 
     let index = unix.fromLineColumn({line: 3, column: 1});
     expect(index).toBe(12);
@@ -58,21 +76,19 @@ it("can convert from line/column to index", () => {
     index = windows.fromLineColumn({line: 2, column: 3});
     expect(index).toBe(9);
 
+    unix = new LineColumnFinder(unixStr, {origin: 0});
+    index = unix.fromLineColumn({line: 2, column: 0});
+    expect(index).toBe(12);
+
+    index = unix.fromLineColumn({line: 1, column: 2});
+    expect(index).toBe(8);
 });
 
 it("throws exception when invalid line/column is specified", () => {
     const str = "hello\nworld";
     const finder = new LineColumnFinder(str);
 
-    expect(() => {
-        finder.fromLineColumn({line: 3, column: 1})
-    }).toThrow();
-
-    expect(() => {
-        finder.fromLineColumn({line: 2, column: 6});
-    }).toThrow();
-
-    const ind = finder.fromLineColumn({line: 2, column: 5});
-    expect(ind).toBe(10);
-
+    expect(() => finder.fromLineColumn({line: 3, column: 1})).toThrow();
+    expect(() => finder.fromLineColumn({line: 2, column: 6})).toThrow();
+    expect(() => finder.fromLineColumn({line: 1, column: 0})).toThrow();
 });
