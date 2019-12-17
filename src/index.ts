@@ -1,7 +1,17 @@
 
-interface LineColumn {
+interface AbstractLineColumn {
     line: number;
     column: number;
+}
+
+class LineColumn implements AbstractLineColumn {
+    public constructor(public line: number, public column: number) {}
+    public toString() {
+        return this.line + ":" + this.column
+    }
+    public toVerboseString() {
+        return "Line: " + this.line + ", Column: " + this.column
+    }
 }
 
 interface Options {
@@ -39,7 +49,7 @@ function findClosestIndex(needle: number, haystack: number[]) {
     }
 }
 
-class LineColumnFinder {
+export class LineColumnFinder {
 
     private source: string;
     private options: Required<Options>;
@@ -67,7 +77,7 @@ class LineColumnFinder {
         }
     }
 
-    fromLineColumn(from: LineColumn) {
+    fromLineColumn(from: AbstractLineColumn) {
         const line = from.line - this.options.origin;
         const column = from.column - this.options.origin;
 
@@ -102,14 +112,13 @@ class LineColumnFinder {
         const line = findClosestIndex(index, this.lineCache);
         const column = index - this.lineCache[line];
 
-        return {
-            line: line + this.options.origin,
-            column: column + this.options.origin
-        };
+
+        return new LineColumn(
+            line + this.options.origin,
+            column + this.options.origin
+        )
     }
 
 }
 
-export {
-    LineColumnFinder
-};
+export default LineColumn
