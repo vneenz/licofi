@@ -1,6 +1,6 @@
 {
   "name": "licofi",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Convert index in a string to line/column",
   "repository": {
     "type": "git",
