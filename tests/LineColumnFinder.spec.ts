@@ -92,3 +92,15 @@ it("throws exception when invalid line/column is specified", () => {
     expect(() => finder.fromLineColumn({line: 2, column: 6})).toThrow();
     expect(() => finder.fromLineColumn({line: 1, column: 0})).toThrow();
 });
+
+it("toString of LineColumn reports correctly", () => {
+    const str = "hello\nworld";
+    const finder = new LineColumnFinder(str);
+
+
+    expect(finder.fromIndex(8).toString()).toBe("2:3")
+    expect(finder.fromIndex(2).toString()).toBe("1:3")
+    
+    expect(finder.fromIndex(1).toVerboseString()).toBe("Line: 1, Column: 2")
+    expect(finder.fromIndex(5).toVerboseString()).toBe("Line: 1, Column: 6")
+});
