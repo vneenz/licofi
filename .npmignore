@@ -1,4 +1,6 @@
+.editorconfig
 jest.config.js
+tsconfig.json
 bench
 src
 tests
