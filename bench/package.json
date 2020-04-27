@@ -6,7 +6,7 @@
     "name": "Vas Sudanagunta"
   },
   "scripts": {
-    "bench": "sudo nice -10 node --require source-map-support/register comparison.js"
+    "bench": "nice -10 node comparison.js"
   },
   "devDependencies": {
     "@types/node": "^13.13.4",
