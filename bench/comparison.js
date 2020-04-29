@@ -3,6 +3,8 @@
 const Benchmark = require("benchmark")
 const benchmarks = require("beautify-benchmark")
 const chalk = require("chalk")
+const numeral = require("numeral")
+const sprintf = require("sprintf-js").sprintf
 
 const findLineColumn = require("find-line-column")
 const textBuffer = require("simple-text-buffer")
@@ -140,17 +142,6 @@ const candidates = [
 ]
 
 
-const createSuite = function (name, options) {
-    return new Benchmark.Suite(name, options).on("start", function () {
-        console.log(chalk.blue(name))
-    }).on("cycle", function (event) {
-        benchmarks.add(event.target)
-    }).on("complete", function () {
-        benchmarks.log()
-    })
-}
-
-
 function randomInt (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -227,24 +218,96 @@ function generateText (lines) {
     return buf
 }
 
-for (let j = 0; j < textCases.length; j++) {
-    const textCase = textCases[j]
 
-    const text = generateText(textCase.lines)
+const benchMemory = process.argv.length > 2 && process.argv[2] === '-m'
 
-    const numOffsets = Math.min(text.length * 2, 50000)
-    const stochasticOffsets = new Array(numOffsets)
-    for (let m = 0; m < numOffsets; m++) {
-        stochasticOffsets[m] = randomInt(0, text.length-1)
+if (!benchMemory) {
+
+    const createSuite = function (name, options) {
+        return new Benchmark.Suite(name, options).on("start", function () {
+            console.log(chalk.blue(name))
+        }).on("cycle", function (event) {
+            benchmarks.add(event.target)
+        }).on("complete", function () {
+            benchmarks.log()
+        })
     }
 
-    const suite = createSuite(textCase.name + " text: " + text.length + " chars, " + textCase.lines + " lines")
-    for (let k = 0; k < candidates.length; k++) {
-        const c = candidates[k]
-        suite.add(c.name, c.lineAndCol(text, stochasticOffsets), {
-            'onError': (event) => {console.log(c.name, "benchmark error:", event.target.error)},
-          }
-        )
+    for (let j = 0; j < textCases.length; j++) {
+        const textCase = textCases[j]
+
+        const text = generateText(textCase.lines)
+
+        const numOffsets = Math.min(text.length * 2, 50000)
+        const stochasticOffsets = new Array(numOffsets)
+        for (let m = 0; m < numOffsets; m++) {
+            stochasticOffsets[m] = randomInt(0, text.length - 1)
+        }
+
+        const suite = createSuite(textCase.name + " text: " + text.length + " chars, " + textCase.lines + " lines")
+        for (let k = 0; k < candidates.length; k++) {
+            const c = candidates[k]
+            suite.add(c.name, c.lineAndCol(text, stochasticOffsets), {
+                  'onError': (event) => {console.log(c.name, "benchmark error:", event.target.error)},
+              }
+            )
+        }
+        suite.run()
     }
-    suite.run()
+
+} else {
+
+
+    for (let j = 0; j < textCases.length; j++) {
+        const textCase = textCases[j]
+
+        const text = generateText(textCase.lines)
+
+        const numOffsets = Math.min(text.length * 2, 50000)
+        const stochasticOffsets = new Array(numOffsets)
+        for (let m = 0; m < numOffsets; m++) {
+            stochasticOffsets[m] = randomInt(0, text.length - 1)
+        }
+
+        console.log(sprintf("%s text (%d lines), %d queries", textCase.name, textCase.lines, numOffsets))
+
+        let rowFormat = "  %-20s  %9s  %9s  %9s   %9s"
+        console.log(sprintf(rowFormat, "", "kb", "index ms", "query ms", "total ms"))
+        for (let k = 0; k < candidates.length; k++) {
+            const c = candidates[k]
+
+            // available if node.js and `--expose-gc` flag was used
+            if (global.gc) {
+                global.gc();
+            } else {
+                console.log("setup: NO GC SUPPORT")
+            }
+            const before = process.memoryUsage().heapUsed
+
+            let start = Date.now()
+            const funk = c.lineAndCol(text, stochasticOffsets)
+            const indexTime = Date.now() - start
+
+            start = Date.now()
+            let aborted = false
+            for (let i = 0; i < numOffsets; i++) {
+                funk();
+                if (i % 100 === 0 && Date.now() - start > 10000) {
+                    aborted = true
+                    break
+                }
+            }
+            const queryTime = Date.now() - start
+
+            if (aborted) {
+                console.log(sprintf(rowFormat, c.name, "", "", "", "ABORTED"))
+            } else {
+                const memK =  numeral((process.memoryUsage().heapUsed - before) / 1000).format("0,0")
+                console.log(sprintf(rowFormat, c.name, memK, indexTime, queryTime, indexTime + queryTime))
+            }
+        }
+
+        console.log("\n")
+    }
+
 }

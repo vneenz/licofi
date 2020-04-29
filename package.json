@@ -10,7 +10,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "bench": "npm --prefix bench run bench"
+    "bench": "npm --prefix bench run bench",
+    "benchMem": "npm --prefix bench run benchMem"
   },
   "keywords": [
     "search",

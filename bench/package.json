@@ -6,23 +6,26 @@
     "name": "Vas Sudanagunta"
   },
   "scripts": {
-    "bench": "nice -10 node comparison.js"
+    "bench": "nice -10 node --expose-gc comparison.js",
+    "benchMem": "nice -10 node --expose-gc comparison.js -m"
   },
   "devDependencies": {
     "@types/node": "^13.13.4",
     "array-shuffle": "^1.0.1",
-    "benchmark": "^2.1.4",
     "beautify-benchmark": "^0.2.4",
+    "benchmark": "^2.1.4",
     "chalk": "^4.0.0",
     "char-props": "^0.1.5",
     "find-line-column": "^0.5.2",
     "line-column": "^1.0.2",
     "lines-and-columns": "^1.1.6",
     "microtime": "^3.0.0",
+    "numeral": "^2.0.6",
     "simple-text-buffer": "^9.2.11",
     "string-pos": "^1.0.0",
     "vfile": "^4.1.0",
     "vfile-location": "^3.0.1",
-    "vscode-textbuffer": "^1.0.0"
+    "vscode-textbuffer": "^1.0.0",
+    "sprintf-js": "latest"
   }
 }
