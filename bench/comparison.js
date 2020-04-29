@@ -57,19 +57,6 @@ const candidates = [
         }
     },
     {
-        name: "string-pos",
-        lineAndCol: (text, stochasticOffsets) => {
-            stringPos(text.short, 0)
-            let len = stochasticOffsets.length
-            let next = 0
-            return function() {
-                stringPos(text, stochasticOffsets[next])
-                next++
-                if (next === len) next = 0
-            }
-        }
-    },
-    {
         name: "vfile-location",
         lineAndCol: (text, stochasticOffsets) => {
             const vfl = vfileLocation(vfile(text))
@@ -90,6 +77,19 @@ const candidates = [
             let next = 0
             return function() {
                 lac.locationForIndex(stochasticOffsets[next])
+                next++
+                if (next === len) next = 0
+            }
+        }
+    },
+    {
+        name: "string-pos",
+        lineAndCol: (text, stochasticOffsets) => {
+            stringPos(text.short, 0)
+            let len = stochasticOffsets.length
+            let next = 0
+            return function() {
+                stringPos(text, stochasticOffsets[next])
                 next++
                 if (next === len) next = 0
             }
