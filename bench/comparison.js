@@ -3,7 +3,6 @@
 const Benchmark = require("benchmark")
 const benchmarks = require("beautify-benchmark")
 const chalk = require("chalk")
-const shuffle = require("array-shuffle")
 
 const findLineColumn = require("find-line-column")
 const textBuffer = require("simple-text-buffer")
@@ -159,37 +158,79 @@ function randomInt (min, max) {
 
 const textCases = [
     {
+        name: "very short",
+        lines: 10
+    },
+    {
         name: "short",
-        lines: 5
+        lines: 100
     },
     {
         name: "medium",
-        lines: 50
+        lines: 1000
     },
     {
         name: "long",
-        lines: 500
+        lines: 10000
     },
     {
         name: "very long",
-        lines: 5000
+        lines: 100000
     }
 ]
 
-const loremIpsum = "Lorem ipsum dolor sit amet\nconsectetur adipiscing elit.\nSuspendisse id sem vel mi cursus facilisis vel ac arcu.\nNulla vulputate tortor eu ipsum bibendum rhoncus"
+const Macbeth =
+`That which hath made them drunk hath made me bold;
+What hath quench'd them hath given me fire.
+Hark! Peace!
+It was the owl that shriek'd, the fatal bellman,
+Which gives the stern'st good-night. He is about it:
+The doors are open; and the surfeited grooms
+Do mock their charge with snores: I have drugg'd 
+their possets,
+That death and nature do contend about them,
+Whether they live or die.
 
+[Within] Who's there? what, ho!
+
+Alack, I am afraid they have awaked,
+And 'tis not done. The attempt and not the deed
+Confounds us. Hark! I laid their daggers ready;
+He could not miss 'em. Had he not resembled
+My father as he slept, I had done't.
+
+*Enter MACBETH*
+
+My husband!
+
+I have done the deed. Didst thou not hear a noise?
+
+I heard the owl scream and the crickets cry.
+Did not you speak?
+
+When?
+
+Now.
+
+As I descended?
+
+Ay.`.split("\n")
+
+
+function generateText (lines) {
+    let buf = ''
+    const max = Macbeth.length - 1
+    for (let i = 0; i < lines; i++) {
+        buf += Macbeth[randomInt(0, max)]
+        buf += "\n"
+    }
+    return buf
+}
 
 for (let j = 0, len1 = textCases.length; j < len1; j++) {
     const textCase = textCases[j]
-    const text = ((function () {
-        const results = []
-        for (let i = 0, k = 0, ref = textCase.lines; 1 <= ref ? k <= ref : k >= ref; i = 1 <= ref ? ++k : --k) {
-            results.push(shuffle(loremIpsum.split("\n")))
-        }
-        return results
-    })()).join("\n")
-    const len = text.length
-    const lines = stringPos(text, len).line
+
+    const text = generateText(textCase.lines)
 
     const numOffsets = Math.min(text.length * 2, 50000)
     const stochasticOffsets = new Array(numOffsets)
@@ -197,7 +238,7 @@ for (let j = 0, len1 = textCases.length; j < len1; j++) {
         stochasticOffsets[m] = randomInt(0, text.length-1)
     }
 
-    const suite = createSuite(textCase.name + " text: " + len + " chars, " + lines + " lines")
+    const suite = createSuite(textCase.name + " text: " + text.length + " chars, " + textCase.lines + " lines")
     for (let k = 0, len2 = candidates.length; k < len2; k++) {
         const c = candidates[k]
         suite.add(c.name, c.lineAndCol(text, stochasticOffsets))
