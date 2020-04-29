@@ -141,12 +141,12 @@ const candidates = [
 
 
 const createSuite = function (name, options) {
-    return Benchmark.Suite(name, options).on("start", function () {
-        return console.log(chalk.dim(name))
-    }).on("cycle", function () {
-        return benchmarks.add(arguments[0].target)
+    return new Benchmark.Suite(name, options).on("start", function () {
+        console.log(chalk.blue(name))
+    }).on("cycle", function (event) {
+        benchmarks.add(event.target)
     }).on("complete", function () {
-        return benchmarks.log()
+        benchmarks.log()
     })
 }
 
@@ -227,7 +227,7 @@ function generateText (lines) {
     return buf
 }
 
-for (let j = 0, len1 = textCases.length; j < len1; j++) {
+for (let j = 0; j < textCases.length; j++) {
     const textCase = textCases[j]
 
     const text = generateText(textCase.lines)
@@ -239,9 +239,12 @@ for (let j = 0, len1 = textCases.length; j < len1; j++) {
     }
 
     const suite = createSuite(textCase.name + " text: " + text.length + " chars, " + textCase.lines + " lines")
-    for (let k = 0, len2 = candidates.length; k < len2; k++) {
+    for (let k = 0; k < candidates.length; k++) {
         const c = candidates[k]
-        suite.add(c.name, c.lineAndCol(text, stochasticOffsets))
+        suite.add(c.name, c.lineAndCol(text, stochasticOffsets), {
+            'onError': (event) => {console.log(c.name, "benchmark error:", event.target.error)},
+          }
+        )
     }
     suite.run()
 }
