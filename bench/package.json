@@ -7,7 +7,8 @@
   },
   "scripts": {
     "bench": "nice -10 node --expose-gc comparison.js",
-    "benchMem": "nice -10 node --expose-gc comparison.js -m"
+    "benchMem": "nice -10 node --expose-gc comparison.js -m",
+    "benchMemMD": "nice -10 node --expose-gc comparison.js -m -md"
   },
   "devDependencies": {
     "@types/node": "^13.13.4",

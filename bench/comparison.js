@@ -177,7 +177,7 @@ Hark! Peace!
 It was the owl that shriek'd, the fatal bellman,
 Which gives the stern'st good-night. He is about it:
 The doors are open; and the surfeited grooms
-Do mock their charge with snores: I have drugg'd 
+Do mock their charge with snores: I have drugg'd
 their possets,
 That death and nature do contend about them,
 Whether they live or die.
@@ -218,8 +218,58 @@ function generateText (lines) {
     return buf
 }
 
+class PlainTextResultLogger {
 
-const benchMemory = process.argv.length > 2 && process.argv[2] === '-m'
+    constructor() {
+        this.rowFormat = " %-20s  %12s  %9s  %9s   %9s"
+    }
+
+    header(name, numLines, numQueries) {
+        console.log(sprintf("%s text (%d lines), %d queries", name, numLines, numQueries));
+        console.log(
+            sprintf(this.rowFormat, "lib", "memory usage", "index", "query", "total")
+        );
+    }
+
+    abort(lib) {
+        console.log(
+            sprintf(this.rowFormat, lib, "", "", "", "ABORTED")
+        );
+    }
+
+    result(lib, mem, index, query) {
+        const total = index + query;
+        console.log(
+            sprintf(this.rowFormat, lib, mem + " KB", index + " ms", query + " ms", total + " ms")
+        );
+    }
+}
+
+class MarkdownResultLogger {
+
+    header(name, numLines, numQueries) {
+        console.log(`#### ${name} text (${numLines} lines), ${numQueries} queries`);
+        console.log("|lib|memory usage|index|query|total|");
+        console.log("|-|-|-|-|-|");
+    }
+
+    abort(lib) {
+        console.log(`|${lib}||||ABORTED|`);
+    }
+
+    result(lib, mem, index, query) {
+        const total = index + query;
+        console.log(`|${lib}|${mem} kb|${index} ms|${query} ms|${total} ms`);
+    }
+}
+
+const benchMemory = process.argv.includes("-m");
+const outputMD = process.argv.includes("-md");
+
+const resultLogger = outputMD ?
+    new MarkdownResultLogger() :
+    new PlainTextResultLogger();
+
 
 if (!benchMemory) {
 
@@ -269,13 +319,9 @@ if (!benchMemory) {
             stochasticOffsets[m] = randomInt(0, text.length - 1)
         }
 
-        console.log(sprintf("%s text (%d lines), %d queries", textCase.name, textCase.lines, numOffsets))
+        resultLogger.header(textCase.name, textCase.lines, numOffsets);
 
-        let rowFormat = "  %-20s  %9s  %9s  %9s   %9s"
-        console.log(sprintf(rowFormat, "", "kb", "index ms", "query ms", "total ms"))
-        for (let k = 0; k < candidates.length; k++) {
-            const c = candidates[k]
-
+        for (const c of candidates) {
             // available if node.js and `--expose-gc` flag was used
             if (global.gc) {
                 global.gc();
@@ -293,17 +339,17 @@ if (!benchMemory) {
             for (let i = 0; i < numOffsets; i++) {
                 funk();
                 if (i % 100 === 0 && Date.now() - start > 10000) {
-                    aborted = true
-                    break
+                    aborted = true;
+                    break;
                 }
             }
             const queryTime = Date.now() - start
 
             if (aborted) {
-                console.log(sprintf(rowFormat, c.name, "", "", "", "ABORTED"))
+                resultLogger.abort(c.name);
             } else {
                 const memK =  numeral((process.memoryUsage().heapUsed - before) / 1000).format("0,0")
-                console.log(sprintf(rowFormat, c.name, memK, indexTime, queryTime, indexTime + queryTime))
+                resultLogger.result(c.name, memK, indexTime, queryTime);
             }
         }
 
