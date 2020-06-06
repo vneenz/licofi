@@ -6,6 +6,7 @@
         "baseUrl": ".",
         "noEmitOnError": true,
         "module": "commonjs",
+        "esModuleInterop": true,
         "sourceMap": false,
         "noImplicitAny": true,
         "outDir": "dist",

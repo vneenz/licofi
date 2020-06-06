@@ -4,7 +4,7 @@ interface AbstractLineColumn {
     column: number;
 }
 
-class LineColumn implements AbstractLineColumn {
+export class LineColumn implements AbstractLineColumn {
     public constructor(public line: number, public column: number) {}
     public toString() {
         return this.line + ":" + this.column
@@ -120,5 +120,3 @@ export class LineColumnFinder {
     }
 
 }
-
-export default LineColumn
