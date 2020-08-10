@@ -93,6 +93,23 @@ it("throws exception when invalid line/column is specified", () => {
     expect(() => finder.fromLineColumn({line: 1, column: 0})).toThrow();
 });
 
+it("correct behavior for empty lines and empty file", () => {
+    const emptyLines = new LineColumnFinder("\n\n");
+    const emptyFile = new LineColumnFinder("");
+
+    let index = emptyLines.fromLineColumn({line: 1, column: 1});
+    expect(index).toBe(0);
+
+    index = emptyLines.fromLineColumn({line: 2, column: 1});
+    expect(index).toBe(1);
+
+    // should return 2? See Issue #12
+    expect(() => emptyLines.fromLineColumn({line: 3, column: 1})).toThrow();
+
+    // should return 0? See Issue #12
+    expect(() => emptyFile.fromLineColumn({line: 1, column: 1})).toThrow();
+});
+
 it("toString of LineColumn reports correctly", () => {
     const str = "hello\nworld";
     const finder = new LineColumnFinder(str);
