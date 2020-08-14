@@ -10,7 +10,6 @@ it("works with unix line endings", () => {
     expect(result).toEqual({line: 2, column: 6});
 });
 
-
 it("works with windows line endings", () => {
     const str = "hello\r\nworld!";
     const index = str.indexOf("!");
@@ -93,7 +92,7 @@ it("throws exception when invalid line/column is specified", () => {
     expect(() => finder.fromLineColumn({line: 1, column: 0})).toThrow();
 });
 
-it("correct behavior for empty lines and empty file", () => {
+it("behaves correctly with empty lines and empty string", () => {
     const emptyLines = new LineColumnFinder("\n\n");
     const emptyFile = new LineColumnFinder("");
 
@@ -103,21 +102,17 @@ it("correct behavior for empty lines and empty file", () => {
     index = emptyLines.fromLineColumn({line: 2, column: 1});
     expect(index).toBe(1);
 
-    // should return 2? See Issue #12
     expect(() => emptyLines.fromLineColumn({line: 3, column: 1})).toThrow();
-
-    // should return 0? See Issue #12
     expect(() => emptyFile.fromLineColumn({line: 1, column: 1})).toThrow();
 });
 
-it("toString of LineColumn reports correctly", () => {
+it("returns correctly formatted string with toString() of LineColumn", () => {
     const str = "hello\nworld";
     const finder = new LineColumnFinder(str);
 
-
     expect(finder.fromIndex(8).toString()).toBe("2:3")
     expect(finder.fromIndex(2).toString()).toBe("1:3")
-    
+
     expect(finder.fromIndex(1).toVerboseString()).toBe("Line: 1, Column: 2")
     expect(finder.fromIndex(5).toVerboseString()).toBe("Line: 1, Column: 6")
 });

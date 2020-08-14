@@ -112,7 +112,6 @@ export class LineColumnFinder {
         const line = findClosestIndex(index, this.lineCache);
         const column = index - this.lineCache[line];
 
-
         return new LineColumn(
             line + this.options.origin,
             column + this.options.origin
